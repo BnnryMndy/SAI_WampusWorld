@@ -12,13 +12,16 @@ namespace SAI_WampusWorld
 {
     public partial class Form1 : Form
     {
-        public Label[,] labels = new Label[4,4];
+        public Label[,] labels = new Label[4, 4];
+        public Label[,] agentLabel = new Label[4, 4];
         public World world = new World();
+        Player agent = new Player();
         public Form1()
         {
             
             InitializeComponent();
-            
+
+            #region ehe
             labels[0, 0] = label1;
             labels[0, 1] = label2;
             labels[0, 2] = label3;
@@ -36,16 +39,46 @@ namespace SAI_WampusWorld
             labels[3, 2] = label15;
             labels[3, 3] = label16;
 
+
+            agentLabel[0, 0] = label17;
+            agentLabel[0, 1] = label18;
+            agentLabel[0, 2] = label19;
+            agentLabel[0, 3] = label20;
+            agentLabel[1, 0] = label21;
+            agentLabel[1, 1] = label22;
+            agentLabel[1, 2] = label23;
+            agentLabel[1, 3] = label24;
+            agentLabel[2, 0] = label25;
+            agentLabel[2, 1] = label26;
+            agentLabel[2, 2] = label27;
+            agentLabel[2, 3] = label28;
+            agentLabel[3, 0] = label29;
+            agentLabel[3, 1] = label30;
+            agentLabel[3, 2] = label31;
+            agentLabel[3, 3] = label32;
+            #endregion ehe
+
+
+
             world.GenerateMap();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            
+            updateFields();
+        }
+
+        private void updateFields()
+        {
+            World drawWorld = world;
+            Player player = agent;
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    labels[i, j].Text = world.ground[i,j].ToString();
+                    labels[i, j].Text = drawWorld.ground[i, j].ToString();
+                    agentLabel[i, j].Text = player.memory[i, j].ToString();
                 }
             }
         }
@@ -67,5 +100,13 @@ namespace SAI_WampusWorld
 
         }
         #endregion
+
+        private void newWorldButton_Click(object sender, EventArgs e)
+        {
+            world.GenerateMap();
+            agent = new Player();
+
+            updateFields();
+        }
     }
 }

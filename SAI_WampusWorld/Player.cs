@@ -8,18 +8,22 @@ namespace SAI_WampusWorld
 {
     class Player
     {
-        private Field[,] memory = new Field[4, 4]; // память агента
-        private int score;
-        private bool canShoot = true;
-        private int direction = 3;
-        private int pos = 11;
-        private bool isLive = true;
+        public Field[,] memory = new Field[4, 4]; // память агента
+        
+        public int score;
+        //public bool canShoot = true;
+        //public int direction = 3;
+        public int posx, posy;
+        public bool isLive = true;
+        public bool isWIn = false;
 
         public bool GetLive() { return isLive; }
 
         public Player()
         {
             for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) memory[i, j] = new Field(i, j);
+            posx = 0;
+            posy = 0;
         }
 
         public void UpdateField(Field field, int x, int y)
@@ -37,62 +41,116 @@ namespace SAI_WampusWorld
                 return;
             }
 
+            if (memory[x, y].isGoldHere) Grab();
+
             if (memory[x, y].isSmell) markWampus(x, y);
-            if ((memory[x, y].isWindy)) markHole(x, y);
+            if (memory[x, y].isWindy) markHole(x, y);
         }
 
         public void markHole(int x, int y)
         {
-            if ((x < 3) && memory[x + 1, y].isChangeBefore == true && !memory[x, y].isSmell) memory[x + 1, y].mayWampus = false;
-            if ((x > 0) && memory[x - 1, y].isChangeBefore == true && !memory[x, y].isSmell) memory[x - 1, y].mayWampus = false;
-            if ((y > 0) && memory[x, y - 1].isChangeBefore == true && !memory[x, y].isSmell) memory[x, y - 1].mayWampus = false;
-            if ((y < 3) && memory[x, y + 1].isChangeBefore == true && !memory[x, y].isSmell) memory[x, y + 1].mayWampus = false;
 
-            if ((x < 3) && memory[x + 1, y].isChangeBefore == false && !memory[x + 1, y].mayHole) memory[x + 1, y].mayHole = true;
-            if ((x > 0) && memory[x - 1, y].isChangeBefore == false && !memory[x - 1, y].mayHole) memory[x - 1, y].mayHole = true;
-            if ((y > 0) && memory[x, y - 1].isChangeBefore == false && !memory[x, y - 1].mayHole) memory[x, y - 1].mayHole = true;
-            if ((y < 3) && memory[x, y + 1].isChangeBefore == false && !memory[x, y + 1].mayHole) memory[x, y + 1].mayHole = true;
+            if ((x < 3) && memory[x + 1, y].isChecked == true && !memory[x, y].isSmell) memory[x + 1, y].mayWampus = false;
+            if ((x > 0) && memory[x - 1, y].isChecked == true && !memory[x, y].isSmell) memory[x - 1, y].mayWampus = false;
+            if ((y > 0) && memory[x, y - 1].isChecked == true && !memory[x, y].isSmell) memory[x, y - 1].mayWampus = false;
+            if ((y < 3) && memory[x, y + 1].isChecked == true && !memory[x, y].isSmell) memory[x, y + 1].mayWampus = false;
+                                               
+            if ((x < 3) && memory[x + 1, y].isChecked == false && !memory[x + 1, y].mayHole) memory[x + 1, y].mayHole = true;
+            if ((x > 0) && memory[x - 1, y].isChecked == false && !memory[x - 1, y].mayHole) memory[x - 1, y].mayHole = true;
+            if ((y > 0) && memory[x, y - 1].isChecked == false && !memory[x, y - 1].mayHole) memory[x, y - 1].mayHole = true;
+            if ((y < 3) && memory[x, y + 1].isChecked == false && !memory[x, y + 1].mayHole) memory[x, y + 1].mayHole = true;
+                                               
+            if ((x < 3) && memory[x + 1, y].isChecked == true && memory[x + 1, y].mayHole) memory[x + 1, y].isHole = true;
+            if ((x > 0) && memory[x - 1, y].isChecked == true && memory[x - 1, y].mayHole) memory[x - 1, y].isHole = true;
+            if ((y > 0) && memory[x, y - 1].isChecked == true && memory[x, y - 1].mayHole) memory[x, y - 1].isHole = true;
+            if ((y < 3) && memory[x, y + 1].isChecked == true && memory[x, y + 1].mayHole) memory[x, y + 1].isHole = true;
 
-            if ((x < 3) && memory[x + 1, y].isChangeBefore == true && memory[x + 1, y].mayHole) memory[x + 1, y].isHole = true;
-            if ((x > 0) && memory[x - 1, y].isChangeBefore == true && memory[x - 1, y].mayHole) memory[x - 1, y].isHole = true;
-            if ((y > 0) && memory[x, y - 1].isChangeBefore == true && memory[x, y - 1].mayHole) memory[x, y - 1].isHole = true;
-            if ((y < 3) && memory[x, y + 1].isChangeBefore == true && memory[x, y + 1].mayHole) memory[x, y + 1].isHole = true;
+            memory[x + 1, y].isChecked = true;
+            memory[x - 1, y].isChecked = true;
+            memory[x, y - 1].isChecked = true;
+            memory[x, y + 1].isChecked = true;
         }
 
         public void markWampus(int x, int y)
         {
-            if ((x < 3) && memory[x + 1, y].isChangeBefore == true && !memory[x, y].isWindy) memory[x + 1, y].mayHole = false;
-            if ((x > 0) && memory[x - 1, y].isChangeBefore == true && !memory[x, y].isWindy) memory[x - 1, y].mayHole = false;
-            if ((y > 0) && memory[x, y - 1].isChangeBefore == true && !memory[x, y].isWindy) memory[x, y - 1].mayHole = false;
-            if ((y < 3) && memory[x, y + 1].isChangeBefore == true && !memory[x, y].isWindy) memory[x, y + 1].mayHole = false;
-            
-            if ((x < 3) && memory[x + 1, y].isChangeBefore == false && !memory[x + 1, y].mayWampus) memory[x + 1, y].mayWampus = true;
-            if ((x > 0) && memory[x - 1, y].isChangeBefore == false && !memory[x - 1, y].mayWampus) memory[x - 1, y].mayWampus = true;
-            if ((y > 0) && memory[x, y - 1].isChangeBefore == false && !memory[x, y - 1].mayWampus) memory[x, y - 1].mayWampus = true;
-            if ((y < 3) && memory[x, y + 1].isChangeBefore == false && !memory[x, y + 1].mayWampus) memory[x, y + 1].mayWampus = true;
+            if ((x < 3) && memory[x + 1, y].isChecked == true && !memory[x, y].isWindy) memory[x + 1, y].mayHole = false;
+            if ((x > 0) && memory[x - 1, y].isChecked == true && !memory[x, y].isWindy) memory[x - 1, y].mayHole = false;
+            if ((y > 0) && memory[x, y - 1].isChecked == true && !memory[x, y].isWindy) memory[x, y - 1].mayHole = false;
+            if ((y < 3) && memory[x, y + 1].isChecked == true && !memory[x, y].isWindy) memory[x, y + 1].mayHole = false;
+                                                
+            if ((x < 3) && memory[x + 1, y].isChecked == false && !memory[x + 1, y].mayWampus) memory[x + 1, y].mayWampus = true;
+            if ((x > 0) && memory[x - 1, y].isChecked == false && !memory[x - 1, y].mayWampus) memory[x - 1, y].mayWampus = true;
+            if ((y > 0) && memory[x, y - 1].isChecked == false && !memory[x, y - 1].mayWampus) memory[x, y - 1].mayWampus = true;
+            if ((y < 3) && memory[x, y + 1].isChecked == false && !memory[x, y + 1].mayWampus) memory[x, y + 1].mayWampus = true;
+                                                
+            if ((x < 3) && memory[x + 1, y].isChecked == true && memory[x + 1, y].mayWampus) memory[x + 1, y].isWampus = true;
+            if ((x > 0) && memory[x - 1, y].isChecked == true && memory[x - 1, y].mayWampus) memory[x - 1, y].isWampus = true;
+            if ((y > 0) && memory[x, y - 1].isChecked == true && memory[x, y - 1].mayWampus) memory[x, y - 1].isWampus = true;
+            if ((y < 3) && memory[x, y + 1].isChecked == true && memory[x, y + 1].mayWampus) memory[x, y + 1].isWampus = true;
 
-            if ((x < 3) && memory[x + 1, y].isChangeBefore == true && memory[x + 1, y].mayWampus) memory[x + 1, y].isWampus = true;
-            if ((x > 0) && memory[x - 1, y].isChangeBefore == true && memory[x - 1, y].mayWampus) memory[x - 1, y].isWampus = true;
-            if ((y > 0) && memory[x, y - 1].isChangeBefore == true && memory[x, y - 1].mayWampus) memory[x, y - 1].isWampus = true;
-            if ((y < 3) && memory[x, y + 1].isChangeBefore == true && memory[x, y + 1].mayWampus) memory[x, y + 1].isWampus = true;
+            memory[x + 1, y].isChecked = true;
+            memory[x - 1, y].isChecked = true;
+            memory[x, y - 1].isChecked = true;
+            memory[x, y + 1].isChecked = true;
         }
 
         public bool mayDanger(int x, int y)
         {
-            return memory[x, y].isWampus || memory[x, y].isHole || memory[x, y].mayWampus || memory[x, y].mayHole;
+            return  memory[x, y].isWampus   ||
+                    memory[x, y].isHole     ||
+                    memory[x, y].mayWampus  ||
+                    memory[x, y].mayHole    ||
+                    !memory[x, y].isChecked;
         }
 
         public bool isDanger(int x, int y)
         {
-            return memory[x, y].isWampus || memory[x, y].isHole;
+            return memory[x, y].isWampus || memory[x, y].isHole || !memory[x,y].isChecked;
         }
 
+        public void Grab()
+        {
+            isWIn = true;
+        }
+
+        public int[] Step()
+        {
+            //^_____^
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if(memory[i,j].isChecked && !memory[i, j].isVisited && !mayDanger(i,j))
+                        return new int[]{ i, j };
+                }
+            }
+            //if we reached here, we have some problems
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if (memory[i, j].isChecked && !memory[i, j].isVisited && !isDanger(i, j))
+                        return new int[] { i, j };
+                }
+            }
+            //(ㆆ_ㆆ) ok
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if (memory[i, j].isChecked && !memory[i, j].isVisited)
+                        return new int[] { i, j };
+                }
+            }
+            // only for compiler you NEWER reached here
+            return new int[0];
+        }
     }
 
     public class Field
     {
         public bool isChecked = false;
-        public bool isChangeBefore = false;
+        public bool isVisited = false;
         public bool isSmell = false;
         public bool isWindy = false;
         public bool isWampus = false;
@@ -100,7 +158,7 @@ namespace SAI_WampusWorld
         public bool mayWampus = false;
         public bool mayHole = false;
         public bool isGoldHere = false;
-
+        
         public int x;
         public int y;
 
@@ -113,6 +171,7 @@ namespace SAI_WampusWorld
         public override string ToString()
         {
             string result = "|";
+            if (isVisited) result += "✔"; else result += " ";
             if (isWindy) result += "💨"; else result += " ";
             if (isSmell) result += "👃"; else result += " ";
             if (isHole) result += "🕳"; else result += " ";
