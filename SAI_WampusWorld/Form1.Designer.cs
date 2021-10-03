@@ -66,8 +66,6 @@ namespace SAI_WampusWorld
             this.stepButton = new System.Windows.Forms.Button();
             this.newWorldButton = new System.Windows.Forms.Button();
             this.StatusLabel = new System.Windows.Forms.Label();
-            this.thousandTimesButton = new System.Windows.Forms.Button();
-            this.thousandTimesLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -442,32 +440,11 @@ namespace SAI_WampusWorld
             this.StatusLabel.TabIndex = 36;
             this.StatusLabel.Text = "label33";
             // 
-            // thousandTimesButton
-            // 
-            this.thousandTimesButton.Location = new System.Drawing.Point(12, 391);
-            this.thousandTimesButton.Name = "thousandTimesButton";
-            this.thousandTimesButton.Size = new System.Drawing.Size(123, 30);
-            this.thousandTimesButton.TabIndex = 37;
-            this.thousandTimesButton.Text = "Try 1000 times";
-            this.thousandTimesButton.UseVisualStyleBackColor = true;
-            this.thousandTimesButton.Click += new System.EventHandler(this.thousandTimesButton_Click);
-            // 
-            // thousandTimesLabel
-            // 
-            this.thousandTimesLabel.AutoSize = true;
-            this.thousandTimesLabel.Location = new System.Drawing.Point(12, 438);
-            this.thousandTimesLabel.Name = "thousandTimesLabel";
-            this.thousandTimesLabel.Size = new System.Drawing.Size(60, 20);
-            this.thousandTimesLabel.TabIndex = 38;
-            this.thousandTimesLabel.Text = "label33";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(797, 520);
-            this.Controls.Add(this.thousandTimesLabel);
-            this.Controls.Add(this.thousandTimesButton);
             this.Controls.Add(this.StatusLabel);
             this.Controls.Add(this.newWorldButton);
             this.Controls.Add(this.stepButton);
@@ -524,8 +501,6 @@ namespace SAI_WampusWorld
         private System.Windows.Forms.Button stepButton;
         private System.Windows.Forms.Button newWorldButton;
         private System.Windows.Forms.Label StatusLabel;
-        private System.Windows.Forms.Button thousandTimesButton;
-        private System.Windows.Forms.Label thousandTimesLabel;
     }
 }
 

@@ -128,37 +128,6 @@ namespace SAI_WampusWorld
             updateFields();
         }
 
-        private void thousandTimesButton_Click(object sender, EventArgs e)
-        {
-            world.GenerateMap();
-            int score = 0;
-            int steps = 0;
-            int wins = 0;
-            int loses = 0;
-
-            while (wins + loses < 1000)
-            {
-                if (world.agent.isLive && !world.agent.isWIn) world.AgentStep();
-                steps++;
-                score -= 1;
-
-                if (!world.agent.isLive)
-                {
-                    score -= 1000;
-                    loses++;
-                    world.GenerateMap();
-                }
-                if (world.agent.isWIn)
-                {
-                    score += 1000;
-                    wins++;
-                    world.GenerateMap();
-                }
-            }
-            thousandTimesLabel.Text = "Score: " + Convert.ToString(score) + "\n" +
-                "Steps: " + Convert.ToString(steps) + "\n" +
-                "Wins: " + Convert.ToString(wins) + "\n" +
-                "Loses: " + Convert.ToString(loses) + "\n";
-        }
+       
     }
 }
