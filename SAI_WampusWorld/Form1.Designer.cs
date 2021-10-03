@@ -65,6 +65,9 @@ namespace SAI_WampusWorld
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.stepButton = new System.Windows.Forms.Button();
             this.newWorldButton = new System.Windows.Forms.Button();
+            this.StatusLabel = new System.Windows.Forms.Label();
+            this.thousandTimesButton = new System.Windows.Forms.Button();
+            this.thousandTimesLabel = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -412,12 +415,13 @@ namespace SAI_WampusWorld
             // 
             // stepButton
             // 
-            this.stepButton.Location = new System.Drawing.Point(12, 401);
+            this.stepButton.Location = new System.Drawing.Point(443, 261);
             this.stepButton.Name = "stepButton";
             this.stepButton.Size = new System.Drawing.Size(317, 37);
             this.stepButton.TabIndex = 34;
             this.stepButton.Text = "Шаг";
             this.stepButton.UseVisualStyleBackColor = true;
+            this.stepButton.Click += new System.EventHandler(this.stepButton_Click);
             // 
             // newWorldButton
             // 
@@ -429,11 +433,42 @@ namespace SAI_WampusWorld
             this.newWorldButton.UseVisualStyleBackColor = true;
             this.newWorldButton.Click += new System.EventHandler(this.newWorldButton_Click);
             // 
+            // StatusLabel
+            // 
+            this.StatusLabel.AutoSize = true;
+            this.StatusLabel.Location = new System.Drawing.Point(12, 319);
+            this.StatusLabel.Name = "StatusLabel";
+            this.StatusLabel.Size = new System.Drawing.Size(60, 20);
+            this.StatusLabel.TabIndex = 36;
+            this.StatusLabel.Text = "label33";
+            // 
+            // thousandTimesButton
+            // 
+            this.thousandTimesButton.Location = new System.Drawing.Point(12, 391);
+            this.thousandTimesButton.Name = "thousandTimesButton";
+            this.thousandTimesButton.Size = new System.Drawing.Size(123, 30);
+            this.thousandTimesButton.TabIndex = 37;
+            this.thousandTimesButton.Text = "Try 1000 times";
+            this.thousandTimesButton.UseVisualStyleBackColor = true;
+            this.thousandTimesButton.Click += new System.EventHandler(this.thousandTimesButton_Click);
+            // 
+            // thousandTimesLabel
+            // 
+            this.thousandTimesLabel.AutoSize = true;
+            this.thousandTimesLabel.Location = new System.Drawing.Point(12, 438);
+            this.thousandTimesLabel.Name = "thousandTimesLabel";
+            this.thousandTimesLabel.Size = new System.Drawing.Size(60, 20);
+            this.thousandTimesLabel.TabIndex = 38;
+            this.thousandTimesLabel.Text = "label33";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(797, 520);
+            this.Controls.Add(this.thousandTimesLabel);
+            this.Controls.Add(this.thousandTimesButton);
+            this.Controls.Add(this.StatusLabel);
             this.Controls.Add(this.newWorldButton);
             this.Controls.Add(this.stepButton);
             this.Controls.Add(this.groupBox2);
@@ -446,6 +481,7 @@ namespace SAI_WampusWorld
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -487,6 +523,9 @@ namespace SAI_WampusWorld
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.Button stepButton;
         private System.Windows.Forms.Button newWorldButton;
+        private System.Windows.Forms.Label StatusLabel;
+        private System.Windows.Forms.Button thousandTimesButton;
+        private System.Windows.Forms.Label thousandTimesLabel;
     }
 }
 

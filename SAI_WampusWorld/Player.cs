@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace SAI_WampusWorld
 {
-    class Player
+    public class Player
     {
         public Field[,] memory = new Field[4, 4]; // память агента
         
         public int score;
-        //public bool canShoot = true;
+        public bool canShoot = true;
         //public int direction = 3;
         public int posx, posy;
         public bool isLive = true;
@@ -29,12 +29,19 @@ namespace SAI_WampusWorld
         public void UpdateField(Field field, int x, int y)
         {
             memory[x, y].isHole = field.isHole;
-            
+            memory[x, y].isVisited = field.isVisited;
+            memory[x, y].isWampus = field.isWampus;
+            memory[x, y].mayHole = field.mayHole;
+            memory[x, y].mayWampus = field.mayWampus;
+            memory[x, y].isGoldHere = field.isGoldHere;
+            memory[x, y].isSmell = field.isSmell;
+            memory[x, y].isWindy = field.isWindy;
+            memory[x, y].isChecked = field.isChecked;
         }
 
         public void CheckField(int x, int y)
         {
-            memory[x, y].isChecked = true;
+            
             if (memory[x, y].isWampus || memory[x, y].isHole)
             {
                 isLive = false;
@@ -45,6 +52,12 @@ namespace SAI_WampusWorld
 
             if (memory[x, y].isSmell) markWampus(x, y);
             if (memory[x, y].isWindy) markHole(x, y);
+            
+            memory[x, y].isChecked = true;
+            if ((x < 3)) memory[x + 1, y].isChecked = true;
+            if ((x > 0)) memory[x - 1, y].isChecked = true;
+            if ((y > 0)) memory[x, y - 1].isChecked = true;
+            if ((y < 3)) memory[x, y + 1].isChecked = true;
         }
 
         public void markHole(int x, int y)
@@ -65,10 +78,6 @@ namespace SAI_WampusWorld
             if ((y > 0) && memory[x, y - 1].isChecked == true && memory[x, y - 1].mayHole) memory[x, y - 1].isHole = true;
             if ((y < 3) && memory[x, y + 1].isChecked == true && memory[x, y + 1].mayHole) memory[x, y + 1].isHole = true;
 
-            memory[x + 1, y].isChecked = true;
-            memory[x - 1, y].isChecked = true;
-            memory[x, y - 1].isChecked = true;
-            memory[x, y + 1].isChecked = true;
         }
 
         public void markWampus(int x, int y)
@@ -88,10 +97,6 @@ namespace SAI_WampusWorld
             if ((y > 0) && memory[x, y - 1].isChecked == true && memory[x, y - 1].mayWampus) memory[x, y - 1].isWampus = true;
             if ((y < 3) && memory[x, y + 1].isChecked == true && memory[x, y + 1].mayWampus) memory[x, y + 1].isWampus = true;
 
-            memory[x + 1, y].isChecked = true;
-            memory[x - 1, y].isChecked = true;
-            memory[x, y - 1].isChecked = true;
-            memory[x, y + 1].isChecked = true;
         }
 
         public bool mayDanger(int x, int y)
@@ -111,6 +116,26 @@ namespace SAI_WampusWorld
         public void Grab()
         {
             isWIn = true;
+        }
+
+        public bool Shoot()
+        {
+            if (!canShoot) return false;
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 4; j++)
+                {
+                    if(canShoot && memory[i,j].isWampus && (posx == i || posy == j))
+                    {
+                        memory[i, j].isWampus = false;
+                        canShoot = false;
+                        return true;
+                    }
+                    
+                }
+            }
+            return false;
+            
         }
 
         public int[] Step()
@@ -158,6 +183,7 @@ namespace SAI_WampusWorld
         public bool mayWampus = false;
         public bool mayHole = false;
         public bool isGoldHere = false;
+        public bool isPlayerHere = false;
         
         public int x;
         public int y;
@@ -171,6 +197,7 @@ namespace SAI_WampusWorld
         public override string ToString()
         {
             string result = "|";
+            if (isPlayerHere) result += "😎";
             if (isVisited) result += "✔"; else result += " ";
             if (isWindy) result += "💨"; else result += " ";
             if (isSmell) result += "👃"; else result += " ";
@@ -187,19 +214,31 @@ namespace SAI_WampusWorld
     public class World
     {
         public Field[,] ground = new Field[4, 4];
+        public Player agent = new Player();
 
         public void GenerateMap()
         {
-            bool isWampusExist = false;
-
             Random rand = new Random();
-            
 
             for (int i = 0; i < 4; i++) for (int j = 0; j < 4; j++) ground[i, j] = new Field(i, j);
 
             int goldX = rand.Next(0, 3);
-            int goldy = rand.Next(0, 3);
+            int goldy;
+            do
+            {
+               goldy = rand.Next(0, 3);
+
+            } while (goldy == goldX && goldX == 0);
             ground[goldX, goldy].isGoldHere = true;
+
+            goldX = rand.Next(0, 3);
+            do
+            {
+                goldy = rand.Next(0, 3);
+
+            } while (goldy == goldX && goldX == 0);
+            ground[goldX, goldy].isWampus = true;
+            GenerateSmell(goldX, goldy);
 
             for (int i = 1; i < 4; i++)
                 for (int j = 1; j < 4; j++)
@@ -210,14 +249,14 @@ namespace SAI_WampusWorld
                         ground[i, j].isHole = true;
                         GenerateWind(i, j);
                     }
-
-                    if(luck < 5 && !isWampusExist)
-                    {
-                        ground[i, j].isWampus = true;
-                        isWampusExist = true;
-                        GenerateSmell(i, j);
-                    }
                 }
+
+            agent = new Player();
+            ground[0, 0].isPlayerHere = true;
+            ground[0, 0].isVisited = true;
+            agent.posx = 0;
+            agent.posy = 0;
+            agent.UpdateField(ground[agent.posx, agent.posy], agent.posx, agent.posy);
         }
 
         public void GenerateSmell(int x, int y)
@@ -234,6 +273,29 @@ namespace SAI_WampusWorld
             if (x > 0) ground[x - 1, y].isWindy = true;
             if (y < 3) ground[x, y + 1].isWindy = true;
             if (y > 0) ground[x, y - 1].isWindy = true;
+        }
+
+
+        public void AgentStep()
+        {
+            bool isPlayerShooted = !agent.canShoot; 
+            agent.CheckField(agent.posx, agent.posy);
+            if (agent.Shoot())
+            {
+                foreach (Field field in ground)
+                {
+                    field.isWampus = false;
+                }
+            }
+            int[] pos = agent.Step();
+            ground[agent.posx, agent.posy].isPlayerHere = false;
+
+            agent.posx = pos[0];
+            agent.posy = pos[1];
+
+            ground[agent.posx, agent.posy].isPlayerHere = true;
+            ground[agent.posx, agent.posy].isVisited = true;
+            agent.UpdateField(ground[agent.posx, agent.posy], agent.posx, agent.posy);
         }
     }
 }

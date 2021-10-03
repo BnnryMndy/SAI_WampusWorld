@@ -14,8 +14,9 @@ namespace SAI_WampusWorld
     {
         public Label[,] labels = new Label[4, 4];
         public Label[,] agentLabel = new Label[4, 4];
+        public int Score = 0;
         public World world = new World();
-        Player agent = new Player();
+
         public Form1()
         {
             
@@ -71,16 +72,16 @@ namespace SAI_WampusWorld
 
         private void updateFields()
         {
-            World drawWorld = world;
-            Player player = agent;
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
                 {
-                    labels[i, j].Text = drawWorld.ground[i, j].ToString();
-                    agentLabel[i, j].Text = player.memory[i, j].ToString();
+                    labels[i, j].Text = world.ground[i, j].ToString();
+                    agentLabel[i, j].Text = world.agent.memory[i, j].ToString();
                 }
             }
+
+            StatusLabel.Text = "SCORE: " + Convert.ToInt32(Score);
         }
 
         //don't look at this {{{(>_<)}}}
@@ -104,9 +105,60 @@ namespace SAI_WampusWorld
         private void newWorldButton_Click(object sender, EventArgs e)
         {
             world.GenerateMap();
-            agent = new Player();
+            updateFields();
+        }
+
+        private void stepButton_Click(object sender, EventArgs e)
+        {
+            if (world.agent.isLive && !world.agent.isWIn) world.AgentStep();
+
+            Score -= 1;
+
+            if (!world.agent.isLive)
+            {
+                Score -= 1000;
+                world.GenerateMap();
+            }
+            if (world.agent.isWIn)
+            {
+                Score += 1000;
+                world.GenerateMap();
+            }
 
             updateFields();
+        }
+
+        private void thousandTimesButton_Click(object sender, EventArgs e)
+        {
+            world.GenerateMap();
+            int score = 0;
+            int steps = 0;
+            int wins = 0;
+            int loses = 0;
+
+            while (wins + loses < 1000)
+            {
+                if (world.agent.isLive && !world.agent.isWIn) world.AgentStep();
+                steps++;
+                score -= 1;
+
+                if (!world.agent.isLive)
+                {
+                    score -= 1000;
+                    loses++;
+                    world.GenerateMap();
+                }
+                if (world.agent.isWIn)
+                {
+                    score += 1000;
+                    wins++;
+                    world.GenerateMap();
+                }
+            }
+            thousandTimesLabel.Text = "Score: " + Convert.ToString(score) + "\n" +
+                "Steps: " + Convert.ToString(steps) + "\n" +
+                "Wins: " + Convert.ToString(wins) + "\n" +
+                "Loses: " + Convert.ToString(loses) + "\n";
         }
     }
 }
