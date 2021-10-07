@@ -87,10 +87,10 @@ namespace SAI_WampusWorld
             if ((y > 0) && memory[x, y - 1].isChecked == true && !memory[x, y].isWindy) memory[x, y - 1].mayHole = false;
             if ((y < 3) && memory[x, y + 1].isChecked == true && !memory[x, y].isWindy) memory[x, y + 1].mayHole = false;
                                                 
-            if ((x < 3) && memory[x + 1, y].isChecked == false && !memory[x + 1, y].mayWampus) memory[x + 1, y].mayWampus = true;
-            if ((x > 0) && memory[x - 1, y].isChecked == false && !memory[x - 1, y].mayWampus) memory[x - 1, y].mayWampus = true;
-            if ((y > 0) && memory[x, y - 1].isChecked == false && !memory[x, y - 1].mayWampus) memory[x, y - 1].mayWampus = true;
-            if ((y < 3) && memory[x, y + 1].isChecked == false && !memory[x, y + 1].mayWampus) memory[x, y + 1].mayWampus = true;
+            if ((x < 3) /* && memory[x + 1, y].isChecked == false */ && !memory[x + 1, y].mayWampus) memory[x + 1, y].mayWampus = true;
+            if ((x > 0) /* && memory[x - 1, y].isChecked == false */ && !memory[x - 1, y].mayWampus) memory[x - 1, y].mayWampus = true;
+            if ((y > 0) /* && memory[x, y - 1].isChecked == false */ && !memory[x, y - 1].mayWampus) memory[x, y - 1].mayWampus = true;
+            if ((y < 3) /* && memory[x, y + 1].isChecked == false */ && !memory[x, y + 1].mayWampus) memory[x, y + 1].mayWampus = true;
                                                 
             if ((x < 3) && memory[x + 1, y].isChecked == true && memory[x + 1, y].mayWampus) memory[x + 1, y].isWampus = true;
             if ((x > 0) && memory[x - 1, y].isChecked == true && memory[x - 1, y].mayWampus) memory[x - 1, y].isWampus = true;
@@ -141,33 +141,43 @@ namespace SAI_WampusWorld
         public int[] Step()
         {
             //^_____^
-            for (int i = 0; i < 4; i++)
+            for (int i = -1; i <= 1; i++)
             {
-                for (int j = 0; j < 4; j++)
+                for (int j = -1; j <= 1; j++)
                 {
-                    if(memory[i,j].isChecked && !memory[i, j].isVisited && !mayDanger(i,j))
-                        return new int[]{ i, j };
+                    if( (i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4) && memory[posx + i, posy + j].isChecked && !memory[posx + i, posy + j].isVisited && !mayDanger(posx + i, posy + j))
+                        return new int[]{ posx + i, posy + j };
+                    
                 }
             }
+
             //if we reached here, we have some problems
-            for (int i = 0; i < 4; i++)
+            for (int i = -1; i <= 1; i++)
             {
-                for (int j = 0; j < 4; j++)
+                for (int j = -1; j <= 1; j++)
                 {
-                    if (memory[i, j].isChecked && !memory[i, j].isVisited && !isDanger(i, j))
-                        return new int[] { i, j };
+                    if ((i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4)  && !isDanger(posx + i, posy + j))
+                        return new int[] { posx + i, posy + j };
                 }
             }
             //(ㆆ_ㆆ) ok
-            for (int i = 0; i < 4; i++)
+            for (int i = -1; i <= 1; i++)
             {
-                for (int j = 0; j < 4; j++)
+                for (int j = -1; j <= 1; j++)
                 {
-                    if (memory[i, j].isChecked && !memory[i, j].isVisited)
-                        return new int[] { i, j };
+                    if ((i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4) && !memory[posx + i, posy + j].isVisited)
+                        return new int[] { posx + i, posy + j };
                 }
             }
             // only for compiler you NEWER reached here
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    if ((i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4))
+                        return new int[] { posx + i, posy + j };
+                }
+            }
             return new int[0];
         }
     }
@@ -215,6 +225,9 @@ namespace SAI_WampusWorld
     {
         public Field[,] ground = new Field[4, 4];
         public Player agent = new Player();
+        public Field Wampus;
+        bool isWampusAlive = true;
+
 
         public void GenerateMap()
         {
@@ -238,6 +251,8 @@ namespace SAI_WampusWorld
 
             } while (goldy == goldX && goldX == 0);
             ground[goldX, goldy].isWampus = true;
+            isWampusAlive = true;
+            Wampus = ground[goldX, goldy];
             GenerateSmell(goldX, goldy);
 
             for (int i = 1; i < 4; i++)
@@ -267,6 +282,34 @@ namespace SAI_WampusWorld
             if (y > 0) ground[x, y - 1].isSmell = true;
         }
 
+        void WampusStep()
+        {
+            if (!isWampusAlive) return;
+            if (Wampus.x < 3) ground[Wampus.x + 1, Wampus.y].isSmell = false;
+            if (Wampus.x > 0) ground[Wampus.x - 1, Wampus.y].isSmell = false;
+            if (Wampus.y < 3) ground[Wampus.x, Wampus.y + 1].isSmell = false;
+            if (Wampus.y > 0) ground[Wampus.x, Wampus.y - 1].isSmell = false;
+
+            Random random = new Random();
+            int newX, newY, randY;
+            int randX = random.Next(-1, +1);
+            randY = (randX != 0 ? 0 : random.Next(-1, +1));
+            newX = 0;
+            newY = 0;
+
+            if (Wampus.x < 3 ) newX = Wampus.x + (randX > 0 ? randX : 0);
+            if (Wampus.x > 0 ) newX = Wampus.x + (randX < 0 ? randX : 0);
+            if (Wampus.y < 3) newY = Wampus.y + (randY > 0 ? randY : 0);
+            if (Wampus.y > 0) newY = Wampus.y + (randY < 0 ? randY : 0);
+
+
+            ground[Wampus.x, Wampus.y].isWampus = false;
+            ground[newX, newY].isWampus = true;
+            GenerateSmell(newX, newY);
+            Wampus = ground[newX, newY];
+        }
+
+
         public void GenerateWind(int x, int y)
         {
             if (x < 3) ground[x + 1, y].isWindy = true;
@@ -278,6 +321,7 @@ namespace SAI_WampusWorld
 
         public void AgentStep()
         {
+            WampusStep();
             bool isPlayerShooted = !agent.canShoot; 
             agent.CheckField(agent.posx, agent.posy);
             if (agent.Shoot())
@@ -285,6 +329,7 @@ namespace SAI_WampusWorld
                 foreach (Field field in ground)
                 {
                     field.isWampus = false;
+                    isWampusAlive = false;
                 }
             }
             int[] pos = agent.Step();
