@@ -15,6 +15,7 @@ namespace SAI_WampusWorld
         //public int direction = 3;
         public int posx, posy;
         public bool isLive = true;
+        public bool isScreamed = false; 
         public bool isWIn = false;
 
         public bool GetLive() { return isLive; }
@@ -52,6 +53,8 @@ namespace SAI_WampusWorld
 
             if (memory[x, y].isSmell) markWampus(x, y);
             if (memory[x, y].isWindy) markHole(x, y);
+
+            if (!memory[x, y].isSmell && !memory[x, y].isWindy) markSafe(x, y);
             
             memory[x, y].isChecked = true;
             if ((x < 3)) memory[x + 1, y].isChecked = true;
@@ -86,31 +89,44 @@ namespace SAI_WampusWorld
             if ((x > 0) && memory[x - 1, y].isChecked == true && !memory[x, y].isWindy) memory[x - 1, y].mayHole = false;
             if ((y > 0) && memory[x, y - 1].isChecked == true && !memory[x, y].isWindy) memory[x, y - 1].mayHole = false;
             if ((y < 3) && memory[x, y + 1].isChecked == true && !memory[x, y].isWindy) memory[x, y + 1].mayHole = false;
-                                                
-            if ((x < 3) /* && memory[x + 1, y].isChecked == false */ && !memory[x + 1, y].mayWampus) memory[x + 1, y].mayWampus = true;
-            if ((x > 0) /* && memory[x - 1, y].isChecked == false */ && !memory[x - 1, y].mayWampus) memory[x - 1, y].mayWampus = true;
-            if ((y > 0) /* && memory[x, y - 1].isChecked == false */ && !memory[x, y - 1].mayWampus) memory[x, y - 1].mayWampus = true;
-            if ((y < 3) /* && memory[x, y + 1].isChecked == false */ && !memory[x, y + 1].mayWampus) memory[x, y + 1].mayWampus = true;
-                                                
-            if ((x < 3) && memory[x + 1, y].isChecked == true && memory[x + 1, y].mayWampus) memory[x + 1, y].isWampus = true;
-            if ((x > 0) && memory[x - 1, y].isChecked == true && memory[x - 1, y].mayWampus) memory[x - 1, y].isWampus = true;
-            if ((y > 0) && memory[x, y - 1].isChecked == true && memory[x, y - 1].mayWampus) memory[x, y - 1].isWampus = true;
-            if ((y < 3) && memory[x, y + 1].isChecked == true && memory[x, y + 1].mayWampus) memory[x, y + 1].isWampus = true;
 
+            if ((x < 3) && !isScreamed /*&& memory[x + 1, y].isChecked == true*/ && memory[x + 1, y].mayWampus) memory[x + 1, y].isWampus = true;
+            if ((x > 0) && !isScreamed/*&& memory[x - 1, y].isChecked == true*/ && memory[x - 1, y].mayWampus) memory[x - 1, y].isWampus = true;
+            if ((y > 0) && !isScreamed/*&& memory[x, y - 1].isChecked == true*/ && memory[x, y - 1].mayWampus) memory[x, y - 1].isWampus = true;
+            if ((y < 3) && !isScreamed/*&& memory[x, y + 1].isChecked == true*/ && memory[x, y + 1].mayWampus) memory[x, y + 1].isWampus = true;
+
+            if ((x < 3) && !isScreamed/* && memory[x + 1, y].isChecked == false */ && !memory[x + 1, y].mayWampus) memory[x + 1, y].mayWampus = true;
+            if ((x > 0) && !isScreamed/* && memory[x - 1, y].isChecked == false */ && !memory[x - 1, y].mayWampus) memory[x - 1, y].mayWampus = true;
+            if ((y > 0) && !isScreamed/* && memory[x, y - 1].isChecked == false */ && !memory[x, y - 1].mayWampus) memory[x, y - 1].mayWampus = true;
+            if ((y < 3) && !isScreamed/* && memory[x, y + 1].isChecked == false */ && !memory[x, y + 1].mayWampus) memory[x, y + 1].mayWampus = true;
+                                                
+            
+
+        }
+
+        public void markSafe(int x, int y)
+        {
+            if ((x < 3) ) memory[x + 1, y].mayHole = false;
+            if ((x > 0) ) memory[x - 1, y].mayHole = false;
+            if ((y > 0) ) memory[x, y - 1].mayHole = false;
+            if ((y < 3) ) memory[x, y + 1].mayHole = false;
+            if ((x < 3)) memory[x + 1, y].mayWampus = false;
+            if ((x > 0)) memory[x - 1, y].mayWampus = false;
+            if ((y > 0)) memory[x, y - 1].mayWampus = false;
+            if ((y < 3)) memory[x, y + 1].mayWampus = false;
         }
 
         public bool mayDanger(int x, int y)
         {
-            return  memory[x, y].isWampus   ||
+            return  (memory[x, y].isWampus && !isScreamed)   ||
                     memory[x, y].isHole     ||
-                    memory[x, y].mayWampus  ||
-                    memory[x, y].mayHole    ||
-                    !memory[x, y].isChecked;
+                    (memory[x, y].mayWampus && !isScreamed) ||
+                    memory[x, y].mayHole;
         }
 
         public bool isDanger(int x, int y)
         {
-            return memory[x, y].isWampus || memory[x, y].isHole || !memory[x,y].isChecked;
+            return (memory[x, y].isWampus && !isScreamed) || memory[x, y].isHole || !memory[x,y].isChecked;
         }
 
         public void Grab()
@@ -121,6 +137,7 @@ namespace SAI_WampusWorld
         public bool Shoot()
         {
             if (!canShoot) return false;
+            
             for (int i = 0; i < 4; i++)
             {
                 for (int j = 0; j < 4; j++)
@@ -129,7 +146,9 @@ namespace SAI_WampusWorld
                     {
                         memory[i, j].isWampus = false;
                         canShoot = false;
+                        isScreamed = true;
                         return true;
+
                     }
                     
                 }
@@ -145,9 +164,19 @@ namespace SAI_WampusWorld
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if( (i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4) && memory[posx + i, posy + j].isChecked && !memory[posx + i, posy + j].isVisited && !mayDanger(posx + i, posy + j))
+                    if( (i == 0 ^ j == 0) && (posx + i >= 0 && posx + i < 4 && posy + j >= 0 && posy + j < 4) && memory[posx + i, posy + j].isChecked && !memory[posx + i, posy + j].isVisited && !mayDanger(posx + i, posy + j))
                         return new int[]{ posx + i, posy + j };
                     
+                }
+            }
+
+            for (int i = -1; i <= 1; i++)
+            {
+                for (int j = -1; j <= 1; j++)
+                {
+                    if ((i == 0 ^ j == 0) && (posx + i >= 0 && posx + i < 4 && posy + j >= 0 && posy + j < 4) && memory[posx + i, posy + j].isChecked && !mayDanger(posx + i, posy + j))
+                        return new int[] { posx + i, posy + j };
+
                 }
             }
 
@@ -156,7 +185,7 @@ namespace SAI_WampusWorld
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if ((i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4)  && !isDanger(posx + i, posy + j))
+                    if ((i == 0 ^ j == 0) && (posx + i >= 0 && posx + i < 4 && posy + j >= 0 && posy + j < 4)  && !isDanger(posx + i, posy + j))
                         return new int[] { posx + i, posy + j };
                 }
             }
@@ -165,7 +194,7 @@ namespace SAI_WampusWorld
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if ((i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4) && !memory[posx + i, posy + j].isVisited)
+                    if ((i == 0 ^ j == 0) && (posx + i >= 0 && posx + i < 4 && posy + j >= 0 && posy + j < 4) && !memory[posx + i, posy + j].isVisited)
                         return new int[] { posx + i, posy + j };
                 }
             }
@@ -174,7 +203,7 @@ namespace SAI_WampusWorld
             {
                 for (int j = -1; j <= 1; j++)
                 {
-                    if ((i == 0 ^ j == 0) && (posx + i > 0 && posx + i < 4 && posy + j > 0 && posy + j < 4))
+                    if ((i == 0 ^ j == 0) && (posx + i >= 0 && posx + i < 4 && posy + j >= 0 && posy + j < 4))
                         return new int[] { posx + i, posy + j };
                 }
             }
@@ -322,16 +351,21 @@ namespace SAI_WampusWorld
         public void AgentStep()
         {
             WampusStep();
+            
             bool isPlayerShooted = !agent.canShoot; 
             agent.CheckField(agent.posx, agent.posy);
+            
             if (agent.Shoot())
             {
                 foreach (Field field in ground)
                 {
                     field.isWampus = false;
+                    agent.isScreamed = true;
                     isWampusAlive = false;
                 }
             }
+            
+            //agent.CheckField(agent.posx, agent.posy);
             int[] pos = agent.Step();
             ground[agent.posx, agent.posy].isPlayerHere = false;
 
